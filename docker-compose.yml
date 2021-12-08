@@ -324,6 +324,18 @@ services:
         BASE_IMAGE: "$SENTRY_IMAGE"
     entrypoint: "/entrypoint.sh"
     command: '"0 0 * * * gosu sentry sentry cleanup --days $SENTRY_EVENT_RETENTION_DAYS"'
+  reverse-proxy:
+    image: traefik:1.7.9
+    container_name: reverse-proxy
+    command: --web -c /opt/sentry/setup/traefik/traefik.toml
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./traefik/traefik.toml:/traefik.toml
+      - ./traefik/acme.json:/acme.json
+      - /var/run/docker.sock:/var/run/docker.sock
   nginx:
     <<: *restart_policy
     ports:
